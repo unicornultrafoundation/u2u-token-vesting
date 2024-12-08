@@ -1,0 +1,25 @@
+{
+  "name": "u2u-token-vesting",
+  "version": "1.0.0",
+  "auth": "phidangnguyen",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.ts --network nebulas",
+    "attack": "npx hardhat run scripts/attack.ts --network nebulas",
+    "size": "npx hardhat size-contracts",
+    "vesting-test": "npx hardhat test test/Vesting.Test.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "hardhat": "^2.17.4",
+    "hardhat-contract-sizer": "^2.10.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "@openzeppelin/contracts": "^4.9.2",
+    "bignumber.js": "^9.1.1"
+  }
+}
