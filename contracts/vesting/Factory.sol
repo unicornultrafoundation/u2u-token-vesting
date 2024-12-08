@@ -20,21 +20,20 @@ contract Factory is IFactory, AccessControl {
     uint256 public totalReleasedAmount;
     uint256 public totalVestingAdded;
 
-   
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     modifier onlyMasterPoolAdmin() {
-        require(hasRole(MASTER_POOL_ADMIN, _msgSender()), "Factory: MASTER_POOL_ADMIN");
+        require(
+            hasRole(MASTER_POOL_ADMIN, _msgSender()),
+            "Factory: MASTER_POOL_ADMIN"
+        );
         _;
     }
 
     modifier onlyPoolAdmin() {
-        require(
-            hasRole(POOL_ADMIN, _msgSender()),
-            "Factory: POOL_ADMIN"
-        );
+        require(hasRole(POOL_ADMIN, _msgSender()), "Factory: POOL_ADMIN");
         _;
     }
 
@@ -95,15 +94,17 @@ contract Factory is IFactory, AccessControl {
         }
     }
 
-    function getPoolLength () external view returns(uint256) {
+    function getPoolLength() external view returns (uint256) {
         return _vestingPools.length();
     }
 
-    function getPoolsAddress () external view returns (address[] memory) {
+    function getPoolsAddress() external view returns (address[] memory) {
         return _vestingPools.values();
     }
 
-    function getPoolDetails (address _poolAddr) external view returns(VestingPool memory) {
+    function getPoolDetails(
+        address _poolAddr
+    ) external view returns (VestingPool memory) {
         return __vestingPool[_poolAddr];
     }
 
@@ -124,8 +125,38 @@ contract Factory is IFactory, AccessControl {
         Vesting(_pooAddr).addBeneficiary(_beneficiary, _totalAmount);
         totalVestingAdded += _totalAmount;
         __vestingPool[_pooAddr].totalVestingAdded += _totalAmount;
-        require(__vestingPool[_pooAddr].totalVestingAdded <= __vestingPool[_pooAddr].totalPoolCap, "Factory: max pool cap");
+        require(
+            __vestingPool[_pooAddr].totalVestingAdded <=
+                __vestingPool[_pooAddr].totalPoolCap,
+            "Factory: max pool cap"
+        );
         emit BeneficiaryAdded(_pooAddr, _beneficiary, _totalAmount);
+    }
+
+    function addBeneficiaries(
+        address _pooAddr,
+        address[] memory _beneficiaries,
+        uint256[] memory _totalAmountArr
+    ) external onlyPoolAdmin onlyValidPool(_pooAddr) {
+        require(_beneficiaries.length == _totalAmountArr.length, "Factory: args invalid");
+        for (uint256 i = 0; i < _beneficiaries.length; ++i) {
+            Vesting(_pooAddr).addBeneficiary(
+                _beneficiaries[i],
+                _totalAmountArr[i]
+            );
+            totalVestingAdded += _totalAmountArr[i];
+            __vestingPool[_pooAddr].totalVestingAdded += _totalAmountArr[i];
+            require(
+                __vestingPool[_pooAddr].totalVestingAdded <=
+                    __vestingPool[_pooAddr].totalPoolCap,
+                "Factory: max pool cap"
+            );
+            emit BeneficiaryAdded(
+                _pooAddr,
+                _beneficiaries[i],
+                _totalAmountArr[i]
+            );
+        }
     }
 
     function widthdraw(address _beneficiary, uint256 _amount) external {

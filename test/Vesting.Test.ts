@@ -1,7 +1,6 @@
 import BigNumber from "bignumber.js";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { time, mineUpTo } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 const zero_address = "0x0000000000000000000000000000000000000000"
 
 describe("Vesting", function () {
@@ -17,6 +16,8 @@ describe("Vesting", function () {
     this.bobAddr = this.signers[1].address
     this.alice = this.signers[2]
     this.aliceAddr = this.signers[2].address
+    this.john = this.signers[3]
+    this.johnAddr = this.signers[3].address
     console.log(`Admin address: ${this.adminAddr}`)
 
   })
@@ -420,7 +421,6 @@ describe("Vesting", function () {
   })
 
   it("Add after pool started", async function () {
-
     const block = await ethers.provider.getBlock("latest"); // Fetch the latest block
     const timestamp = block ? block.timestamp : 0; // Get the timestamp from the block
     const termName = "Private Round"
@@ -530,6 +530,45 @@ describe("Vesting", function () {
     console.log(`TreasuryBalance: ${ethers.formatUnits(treasuryBalance, 18)}`);
     expect(treasuryBalance).to.equal(ethers.parseEther("0"));
 
+  })
+
+  it("Add multiple user", async function () {
+    const block = await ethers.provider.getBlock("latest"); // Fetch the latest block
+    const timestamp = block ? block.timestamp : 0; // Get the timestamp from the block
+    const termName = "Private Round"
+    const startTime = timestamp + 60
+    const firstUnlockPercentage = 10000
+    const lockDuration = 60; // 1 min
+    const vestingDuration = 9 * 60; // 9 mins
+    const vestingPeriods = 18;
+    const totalPoolCap = ethers.parseEther("1000")
+
+    // Create new pool
+    console.log(`New pool args: ${termName}, ${this.adminAddr}, ${startTime}, ${firstUnlockPercentage}, ${lockDuration}, ${vestingDuration}, ${vestingPeriods}, ${totalPoolCap}`)
+    await this.factory.newPool(termName, this.adminAddr, startTime, firstUnlockPercentage, lockDuration, vestingDuration, vestingPeriods, totalPoolCap)
+    // Get pool address
+    const pools = await this.factory.getPoolsAddress()
+    console.log(`Vesting pools: ${pools}`)
+    await expect(pools.length).to.equal(1)
+
+    // Vesting
+    await increaseTime(60)
+
+    // Admin add beneficiary
+    const userAddr = [this.bobAddr, this.aliceAddr, this.johnAddr]
+    const amountArr = [ethers.parseEther("300"), ethers.parseEther("300"), ethers.parseEther("300")]
+    await this.factory.addBeneficiaries(pools[0], userAddr, amountArr)
+
+    // Get vesting schedule infomation
+    const vestingContract__ = await ethers.getContractAt("Vesting", pools[0])
+    const vestingSchedule = await vestingContract__.getVestingSchedule()
+    console.log(`Vesting schedule: ${vestingSchedule}`)
+
+    const userAdded = await vestingContract__.getBeneficiariesAdded()
+    await expect(userAdded).to.equal(3)
+
+    let bobInfos = await vestingContract__.getUserInfo(this.bobAddr)
+    console.log(`Bob Infos: ${bobInfos}`)
   })
 });
 
