@@ -12,8 +12,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract Factory is IFactory, AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeMath for uint256;
+
     bytes32 public constant MASTER_POOL_ADMIN = keccak256("MASTER_POOL_ADMIN");
     bytes32 public constant POOL_ADMIN = keccak256("POOL_ADMIN");
+    
     mapping(address => VestingPool) private __vestingPool;
     EnumerableSet.AddressSet _vestingPools;
     address public treasury;
@@ -131,6 +133,16 @@ contract Factory is IFactory, AccessControl {
             "Factory: max pool cap"
         );
         emit BeneficiaryAdded(_pooAddr, _beneficiary, _totalAmount);
+    }
+
+    function removeBeneficiary(
+        address _pooAddr,
+        address _beneficiary
+    ) external onlyPoolAdmin onlyValidPool(_pooAddr) {
+        uint256 _removedAmount = Vesting(_pooAddr).removeBeneficiary(_beneficiary);
+        totalVestingAdded -= _removedAmount;
+        __vestingPool[_pooAddr].totalVestingAdded -= _removedAmount;
+        emit BeneficiaryRemoved(_pooAddr, _beneficiary, _removedAmount);
     }
 
     function addBeneficiaries(

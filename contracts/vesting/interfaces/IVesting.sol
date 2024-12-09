@@ -26,6 +26,7 @@ interface IVesting {
 
     event Initialized(VestingSchedule info);
     event BeneficiaryAdded(address beneficiary, UserInfo user);
+    event BeneficiaryRemoved(address beneficiary);
     event Released(
         address beneficiary,
         uint256 releasedAmount,

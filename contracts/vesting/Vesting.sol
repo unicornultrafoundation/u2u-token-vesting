@@ -87,9 +87,9 @@ contract Vesting is IVesting, ReentrancyGuard, Pausable {
 
     function checkEligibleReleased(
         address _beneficiary
-    ) external view returns (uint256) {
-        (uint256 _releasedAmount, ) = _eligibleReleased(_beneficiary);
-        return _releasedAmount;
+    ) external view returns (uint256, uint256) {
+        (uint256 _releasedAmount, uint256 _releasedPeriods) = _eligibleReleased(_beneficiary);
+        return (_releasedAmount, _releasedPeriods);
     }
 
     ////////////////////////// INTERNAL FUNCTION ////////////////////////////
@@ -186,6 +186,18 @@ contract Vesting is IVesting, ReentrancyGuard, Pausable {
         });
         __poolUsers.add(_beneficiary);
         emit BeneficiaryAdded(_beneficiary, __users[_beneficiary]);
+    }
+
+    function removeBeneficiary (address _beneficiary) external onlyFactory returns(uint256 removedAmount) {
+        require(
+            __poolUsers.contains(_beneficiary),
+            "Vesting: beneficiary not added yet"
+        );
+        require(__vestingSchedule.startTime > block.timestamp, "Vesting: pool was started");
+        UserInfo memory _user = __users[_beneficiary];
+        removedAmount = _user.totalAmount;
+        __poolUsers.remove(_beneficiary);
+        emit BeneficiaryRemoved(_beneficiary);
     }
 
     function pause() external onlyFactory whenNotPaused {

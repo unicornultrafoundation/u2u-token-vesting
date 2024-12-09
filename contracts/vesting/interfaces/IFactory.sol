@@ -25,4 +25,10 @@ interface IFactory {
         address beneficiary,
         uint256 totalAmount
     );
+
+    event BeneficiaryRemoved(
+        address poodAddr,
+        address beneficiary,
+        uint256 removedAmount
+    );
 }

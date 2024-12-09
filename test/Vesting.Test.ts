@@ -570,6 +570,60 @@ describe("Vesting", function () {
     let bobInfos = await vestingContract__.getUserInfo(this.bobAddr)
     console.log(`Bob Infos: ${bobInfos}`)
   })
+
+
+  it("Remove beneficiary", async function () {
+    const block = await ethers.provider.getBlock("latest"); // Fetch the latest block
+    const timestamp = block ? block.timestamp : 0; // Get the timestamp from the block
+
+    const termName = "Private Round"
+    const startTime = timestamp + 60
+    const firstUnlockPercentage = 10000
+    const lockDuration = 60; // 1 min
+    const vestingDuration = 9 * 60; // 9 mins
+    const vestingPeriods = 18;
+    const totalPoolCap = ethers.parseEther("1000")
+
+    // Create new pool
+    console.log(`New pool args: ${termName}, ${this.adminAddr}, ${startTime}, ${firstUnlockPercentage}, ${lockDuration}, ${vestingDuration}, ${vestingPeriods}, ${totalPoolCap}`)
+    await this.factory.newPool(termName, this.adminAddr, startTime, firstUnlockPercentage, lockDuration, vestingDuration, vestingPeriods, totalPoolCap)
+    // Get pool address
+    const pools = await this.factory.getPoolsAddress()
+    console.log(`Vesting pools: ${pools}`)
+    await expect(pools.length).to.equal(1)
+
+    // Admin add beneficiary
+    await this.factory.addBeneficiary(pools[0], this.bobAddr, ethers.parseEther("600"))
+
+    // Get vesting schedule infomation
+    const vestingContract__ = await ethers.getContractAt("Vesting", pools[0])
+    const vestingSchedule = await vestingContract__.getVestingSchedule()
+    console.log(`Vesting schedule: ${vestingSchedule}`)
+
+    let userAdded = await vestingContract__.getBeneficiariesAdded()
+    console.log(`User Added: ${userAdded}`)
+    await expect(userAdded).to.equal(1)
+
+    let totalVestingAdded = await this.factory.totalVestingAdded()
+    console.log(`Total Vesting Added: ${totalVestingAdded}`)
+
+    let vestingPool = await this.factory.getPoolDetails(pools[0])
+    console.log(`Vesting Pool: ${vestingPool}`)
+
+
+    await this.factory.removeBeneficiary(pools[0], this.bobAddr)
+
+    totalVestingAdded = await this.factory.totalVestingAdded()
+    console.log(`Total Vesting Added: ${totalVestingAdded}`)
+
+    vestingPool = await this.factory.getPoolDetails(pools[0])
+    console.log(`Vesting Pool: ${vestingPool}`)
+
+    userAdded = await vestingContract__.getBeneficiariesAdded()
+    console.log(`User Added: ${userAdded}`)
+    await expect(userAdded).to.equal(0)
+
+  })
 });
 
 

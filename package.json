@@ -9,6 +9,7 @@
     "test": "npx hardhat test",
     "deploy": "npx hardhat run scripts/deploy.ts --network nebulas",
     "attack": "npx hardhat run scripts/attack.ts --network nebulas",
+    "whitelist": "npx hardhat run scripts/whitelist.ts --network nebulas",
     "size": "npx hardhat size-contracts",
     "vesting-test": "npx hardhat test test/Vesting.Test.ts"
   },
