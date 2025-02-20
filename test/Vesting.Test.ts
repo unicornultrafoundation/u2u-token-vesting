@@ -44,14 +44,14 @@ describe("Vesting", function () {
   it("Create pool + vesting", async function () {
     const termName = "Private Round"
     const startTime = Math.round((new Date()).getTime() / 1000) + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;
     const totalPoolCap = ethers.parseEther("1000")
 
     // Create new pool
-    console.log(`New pool args: ${termName}, ${this.adminAddr}, ${startTime}, ${firstUnlockPercentage}, ${lockDuration}, ${vestingDuration}, ${vestingPeriods}, ${totalPoolCap}`)
+    console.log(`New pool args: ${termName}, ${this.adminAddr}, ${startTime}, ${lockDuration}, ${vestingDuration}, ${vestingPeriods}, ${totalPoolCap}`)
     await this.factory.newPool(termName, this.adminAddr, startTime, firstUnlockPercentage, lockDuration, vestingDuration, vestingPeriods, totalPoolCap)
     // Get pool address
     const pools = await this.factory.getPoolsAddress()
@@ -76,7 +76,7 @@ describe("Vesting", function () {
     // Vesting
     await increaseTime(60)
     let eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
     await expect(vestingContract__.connect(this.bob).release()).to.be.revertedWith("Treasury: withdraw invalid amount");
 
     // Send U2U to treasury contract
@@ -96,14 +96,14 @@ describe("Vesting", function () {
     // Vesting
     await increaseTime(60)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("0"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("0"));
 
     // Vesting
     await increaseTime(30)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("50"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("50"));
 
     await vestingContract__.connect(this.bob).release()
     // Check truseary after withdraw
@@ -119,8 +119,8 @@ describe("Vesting", function () {
 
     await increaseTime(90)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("150"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("150"));
 
     await vestingContract__.connect(this.bob).release()
     // Check truseary after withdraw
@@ -136,8 +136,8 @@ describe("Vesting", function () {
 
     await increaseTime(420)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("700"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("700"));
 
     treasuryBalance = await ethers.provider.getBalance(this.treasury.target);
     console.log(`TreasuryBalance: ${ethers.formatUnits(treasuryBalance, 18)}`);
@@ -155,7 +155,8 @@ describe("Vesting", function () {
 
     const termName = "Private Round"
     const startTime = timestamp + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
+    
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;
@@ -186,7 +187,7 @@ describe("Vesting", function () {
     // Vesting
     await increaseTime(660)
     let eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
     await expect(vestingContract__.connect(this.bob).release()).to.be.revertedWith("Treasury: withdraw invalid amount");
 
     // Send U2U to treasury contract
@@ -210,7 +211,7 @@ describe("Vesting", function () {
 
     const termName = "Private Round"
     const startTime = timestamp + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;
@@ -247,9 +248,9 @@ describe("Vesting", function () {
 
     // Bob vesting
     let bobEigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased, 18)} U2U`)
+    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased[0], 18)} U2U`)
     let aliceEigibleReleased = await vestingContract__.checkEligibleReleased(this.aliceAddr)
-    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased, 18)} U2U`)
+    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased[0], 18)} U2U`)
     await expect(vestingContract__.connect(this.bob).release()).to.be.revertedWith("Treasury: withdraw invalid amount");
     // Send U2U to treasury contract
     const sendTx = await this.admin.sendTransaction({
@@ -268,9 +269,9 @@ describe("Vesting", function () {
     await increaseTime(360)
     // Bob vesting
     bobEigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased, 18)} U2U`)
+    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased[0], 18)} U2U`)
     aliceEigibleReleased = await vestingContract__.checkEligibleReleased(this.aliceAddr)
-    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased, 18)} U2U`)
+    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased[0], 18)} U2U`)
     await vestingContract__.connect(this.bob).release()
     await vestingContract__.connect(this.alice).release()
 
@@ -286,7 +287,7 @@ describe("Vesting", function () {
 
     const termName = "Private Round"
     const startTime = timestamp + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;
@@ -323,9 +324,9 @@ describe("Vesting", function () {
 
     // Bob vesting
     let bobEigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased, 18)} U2U`)
+    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased[0], 18)} U2U`)
     let aliceEigibleReleased = await vestingContract__.checkEligibleReleased(this.aliceAddr)
-    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased, 18)} U2U`)
+    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased[0], 18)} U2U`)
     await expect(vestingContract__.connect(this.bob).release()).to.be.revertedWith("Treasury: withdraw invalid amount");
     // Send U2U to treasury contract
     const sendTx = await this.admin.sendTransaction({
@@ -352,9 +353,9 @@ describe("Vesting", function () {
     await increaseTime(360)
     // Bob vesting
     bobEigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased, 18)} U2U`)
+    console.log(`Bob Eigible Released: ${ethers.formatUnits(bobEigibleReleased[0], 18)} U2U`)
     aliceEigibleReleased = await vestingContract__.checkEligibleReleased(this.aliceAddr)
-    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased, 18)} U2U`)
+    console.log(`Alice Eigible Released: ${ethers.formatUnits(aliceEigibleReleased[0], 18)} U2U`)
     await vestingContract__.connect(this.bob).release()
 
 
@@ -380,7 +381,7 @@ describe("Vesting", function () {
 
     const termName = "Private Round"
     const startTime = timestamp + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;
@@ -425,7 +426,7 @@ describe("Vesting", function () {
     const timestamp = block ? block.timestamp : 0; // Get the timestamp from the block
     const termName = "Private Round"
     const startTime = timestamp + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;
@@ -458,7 +459,7 @@ describe("Vesting", function () {
 
 
     let eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
     await expect(vestingContract__.connect(this.bob).release()).to.be.revertedWith("Treasury: withdraw invalid amount");
 
     // Send U2U to treasury contract
@@ -478,14 +479,14 @@ describe("Vesting", function () {
     // Vesting
     await increaseTime(60)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("0"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("0"));
 
     // Vesting
     await increaseTime(30)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("50"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("50"));
 
     await vestingContract__.connect(this.bob).release()
     // Check truseary after withdraw
@@ -501,8 +502,8 @@ describe("Vesting", function () {
 
     await increaseTime(90)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("150"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("150"));
 
     await vestingContract__.connect(this.bob).release()
     // Check truseary after withdraw
@@ -518,8 +519,8 @@ describe("Vesting", function () {
 
     await increaseTime(420)
     eigibleReleased = await vestingContract__.checkEligibleReleased(this.bobAddr)
-    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased, 18)} U2U`)
-    expect(eigibleReleased).to.equal(ethers.parseEther("700"));
+    console.log(`Eigible Released: ${ethers.formatUnits(eigibleReleased[0], 18)} U2U`)
+    expect(eigibleReleased[0]).to.equal(ethers.parseEther("700"));
 
     treasuryBalance = await ethers.provider.getBalance(this.treasury.target);
     console.log(`TreasuryBalance: ${ethers.formatUnits(treasuryBalance, 18)}`);
@@ -537,7 +538,7 @@ describe("Vesting", function () {
     const timestamp = block ? block.timestamp : 0; // Get the timestamp from the block
     const termName = "Private Round"
     const startTime = timestamp + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;
@@ -578,7 +579,7 @@ describe("Vesting", function () {
 
     const termName = "Private Round"
     const startTime = timestamp + 60
-    const firstUnlockPercentage = 10000
+    const firstUnlockPercentage = ethers.parseEther("10")
     const lockDuration = 60; // 1 min
     const vestingDuration = 9 * 60; // 9 mins
     const vestingPeriods = 18;

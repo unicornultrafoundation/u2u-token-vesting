@@ -11,7 +11,11 @@
     "attack": "npx hardhat run scripts/attack.ts --network nebulas",
     "whitelist": "npx hardhat run scripts/whitelist.ts --network nebulas",
     "size": "npx hardhat size-contracts",
-    "vesting-test": "npx hardhat test test/Vesting.Test.ts"
+    "vesting-test": "npx hardhat test test/Vesting.Test.ts",
+    "deploy-mainnet": "npx hardhat run scripts/deploy.ts --network solaris",
+    "attack-mainnet": "npx hardhat run scripts/attack.ts --network solaris",
+    "whitelist-mainnet": "npx hardhat run scripts/whitelist.ts --network solaris",
+    "wrapper-mainnet": "npx hardhat run scripts/vesting-wrapper.ts --network solaris"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",

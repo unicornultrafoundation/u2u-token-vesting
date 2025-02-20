@@ -14,7 +14,7 @@ contract Vesting is IVesting, ReentrancyGuard, Pausable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 HUNDRED_PERCENT = 100000; // ~ 100%
+    uint256 HUNDRED_PERCENT = 1e20; // ~ 100%
 
     address public factory;
 
@@ -193,7 +193,6 @@ contract Vesting is IVesting, ReentrancyGuard, Pausable {
             __poolUsers.contains(_beneficiary),
             "Vesting: beneficiary not added yet"
         );
-        require(__vestingSchedule.startTime > block.timestamp, "Vesting: pool was started");
         UserInfo memory _user = __users[_beneficiary];
         removedAmount = _user.totalAmount;
         __poolUsers.remove(_beneficiary);

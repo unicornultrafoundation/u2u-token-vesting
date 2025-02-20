@@ -4,32 +4,34 @@ interface PoolArgs {
     name: string
     poolAdmin: string
     startTime: number
-    firstUnlockPercentage: number
+    firstUnlockPercentage: string
     lockDuration: number
     vestingDuration: number
     vestingPeriods: number
     totalPoolCap: string
 }
 
-const startTime = Math.round((new Date()).getTime() / 1000) + 300
+const factoryAddress = "0x7Df3E84F2531b48948fCd39D16166c4280d8b703"
+
+const aMonth = 2 * 60
 
 const poolArgs: PoolArgs[] = [
     {
-        name: "Pool 3",
+        name: "Pool 888888888",
         poolAdmin: "0x556180984Ec8B4d28476376f99A071042f262a5c",
-        startTime: startTime,
-        firstUnlockPercentage: 10000,
-        lockDuration: 600,
-        vestingDuration: 5400,
-        vestingPeriods: 18,
-        totalPoolCap: "100000"
+        startTime: 1739200200,
+        // startTime: 1733803200,
+        firstUnlockPercentage: "20",
+        lockDuration: 1 * aMonth + aMonth,
+        vestingDuration: 5 * aMonth,
+        vestingPeriods: 5,
+        totalPoolCap: "34167917"
     }
 ]
 
 
 async function main() {
     let tx;
-    const factoryAddress = "0x9d4c2E691b99E98Fc28aa5577C5CD2497994b59a"
     const factory = await ethers.getContractAt("Factory", factoryAddress);
     let index = 0;
     while (index < poolArgs.length) {
@@ -38,7 +40,7 @@ async function main() {
             params.name, 
             params.poolAdmin, 
             params.startTime, 
-            params.firstUnlockPercentage, 
+            ethers.parseEther(params.firstUnlockPercentage), 
             params.lockDuration, 
             params.vestingDuration, 
             params.vestingPeriods, 
@@ -63,6 +65,9 @@ main().catch((error) => {
     process.exitCode = 1;
 });
 
-// npx hardhat verify --network nebulas 0xC639aB0771009593B9E94265dac89Cd63FE53Bbf
+// npx hardhat verify --network solaris 0xf7dd30c2c080fd2686c336c9339efd9d2e18adc2
 // Factory deployed to 0x9d4c2E691b99E98Fc28aa5577C5CD2497994b59a
 // Treasury deployed to 0xE8EA903324f9287A2698549230fC017bB3c4bbA5
+
+
+// Pool 0, tx: 0xcabf725d27b76fc45b34d1754352aa0c1d5413aeaf42b043d3b0dba4fc48b860

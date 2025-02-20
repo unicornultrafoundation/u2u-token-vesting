@@ -48,7 +48,7 @@ const config: any = {
       accounts: [`${process.env.PRIVATE_KEY}`],
     },
     solaris: {
-      url: 'https://rpc-mainnet.uniultra.xyz/',
+      url: 'https://rpc-mainnet.u2u.xyz/',
       accounts: [`${process.env.PRIVATE_KEY}`],
     },
     nebulas: {
